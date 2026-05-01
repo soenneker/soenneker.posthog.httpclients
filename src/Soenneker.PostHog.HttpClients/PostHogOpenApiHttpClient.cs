@@ -27,22 +27,23 @@ public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(nameof(PostHogOpenApiHttpClient), (config: _config, baseUrl: _config["PostHog:ClientBaseUrl"] ?? _prodBaseUrl), static state =>
-        {
-            var apiKey = state.config.GetValueStrict<string>("PostHog:ApiKey");
-            string authHeaderName = state.config["PostHog:AuthHeaderName"] ?? "Authorization";
-            string authHeaderValueTemplate = state.config["PostHog:AuthHeaderValueTemplate"] ?? "Bearer {token}";
-            string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
-
-            return new HttpClientOptions
+        return _httpClientCache.Get(nameof(PostHogOpenApiHttpClient), (config: _config, baseUrl: _config["PostHog:ClientBaseUrl"] ?? _prodBaseUrl),
+            static state =>
             {
-                BaseAddress = new Uri(state.baseUrl),
-                DefaultRequestHeaders = new Dictionary<string, string>
+                var apiKey = state.config.GetValueStrict<string>("PostHog:ApiKey");
+                string authHeaderName = state.config["PostHog:AuthHeaderName"] ?? "Authorization";
+                string authHeaderValueTemplate = state.config["PostHog:AuthHeaderValueTemplate"] ?? "Bearer {token}";
+                string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
+
+                return new HttpClientOptions
                 {
-                    {authHeaderName, authHeaderValue},
-                }
-            };
-        }, cancellationToken);
+                    BaseAddress = new Uri(state.baseUrl),
+                    DefaultRequestHeaders = new Dictionary<string, string>
+                    {
+                        { authHeaderName, authHeaderValue },
+                    }
+                };
+            }, cancellationToken);
     }
 
     public void Dispose()
