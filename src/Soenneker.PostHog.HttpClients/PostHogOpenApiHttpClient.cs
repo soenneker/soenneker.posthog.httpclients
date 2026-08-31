@@ -11,13 +11,11 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.PostHog.HttpClients;
 
-///<inheritdoc cref="IPostHogOpenApiHttpClient"/>
 public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
     private readonly IConfiguration _config;
-
-    private const string _prodBaseUrl = "https://app.posthog.com";
+    private readonly string _cacheKey = $"{nameof(PostHogOpenApiHttpClient)}:{Guid.NewGuid():N}";
 
     public PostHogOpenApiHttpClient(IHttpClientCache httpClientCache, IConfiguration config)
     {
@@ -27,7 +25,7 @@ public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(nameof(PostHogOpenApiHttpClient), (config: _config, baseUrl: _config["PostHog:ClientBaseUrl"] ?? _prodBaseUrl),
+        return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config.GetValueStrict<string>("PostHog:ClientBaseUrl")),
             static state =>
             {
                 var apiKey = state.config.GetValueStrict<string>("PostHog:ApiKey");
@@ -46,20 +44,13 @@ public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
             }, cancellationToken);
     }
 
-    /// <summary>
-    /// Releases resources used by the current instance.
-    /// </summary>
     public void Dispose()
     {
-        _httpClientCache.RemoveSync(nameof(PostHogOpenApiHttpClient));
+        _httpClientCache.RemoveSync(_cacheKey);
     }
 
-    /// <summary>
-    /// Asynchronously releases resources used by the current instance.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     public ValueTask DisposeAsync()
     {
-        return _httpClientCache.Remove(nameof(PostHogOpenApiHttpClient));
+        return _httpClientCache.Remove(_cacheKey);
     }
 }

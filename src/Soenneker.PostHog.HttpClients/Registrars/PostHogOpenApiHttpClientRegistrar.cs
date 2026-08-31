@@ -6,7 +6,7 @@ using Soenneker.Utils.HttpClientCache.Registrar;
 namespace Soenneker.PostHog.HttpClients.Registrars;
 
 /// <summary>
-/// Registers the OpenAPI HttpClient wrapper for dependency injection.
+/// Registers the PostHog management API HTTP client provider.
 /// </summary>
 public static class PostHogOpenApiHttpClientRegistrar
 {
