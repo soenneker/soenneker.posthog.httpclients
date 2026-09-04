@@ -11,6 +11,7 @@ using Soenneker.Utils.HttpClientCache.Abstract;
 
 namespace Soenneker.PostHog.HttpClients;
 
+/// <inheritdoc cref="IPostHogOpenApiHttpClient" />
 public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
 {
     private readonly IHttpClientCache _httpClientCache;
