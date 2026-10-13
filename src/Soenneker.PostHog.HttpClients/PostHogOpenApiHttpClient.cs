@@ -26,10 +26,10 @@ public sealed class PostHogOpenApiHttpClient : IPostHogOpenApiHttpClient
 
     public ValueTask<HttpClient> Get(CancellationToken cancellationToken = default)
     {
-        return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config.GetValueStrict<string>("PostHog:ClientBaseUrl")),
+        return _httpClientCache.Get(_cacheKey, (config: _config, baseUrl: _config.GetStringStrict("PostHog:ClientBaseUrl")),
             static state =>
             {
-                var apiKey = state.config.GetValueStrict<string>("PostHog:ApiKey");
+                var apiKey = state.config.GetStringStrict("PostHog:ApiKey");
                 string authHeaderName = state.config["PostHog:AuthHeaderName"] ?? "Authorization";
                 string authHeaderValueTemplate = state.config["PostHog:AuthHeaderValueTemplate"] ?? "Bearer {token}";
                 string authHeaderValue = authHeaderValueTemplate.Replace("{token}", apiKey, StringComparison.Ordinal);
